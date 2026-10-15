@@ -6,11 +6,17 @@ import com.nexcart.repository.RoleRepository;
 import com.nexcart.repository.UserRepository;
 import com.nexcart.security.AuthRequest;
 import com.nexcart.security.JwtUtil;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,7 +26,6 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
-
 
     public AuthController(JwtUtil jwtUtil, AuthenticationManager authenticationManager, UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.jwtUtil = jwtUtil;
@@ -38,7 +43,6 @@ public class AuthController {
 
         User newUser = new User();
         newUser.setUsername(request.getUsername());
-
         newUser.setUserEmail(request.getEmail());
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());
@@ -50,14 +54,10 @@ public class AuthController {
             return roleRepository.save(newRole);
         });
 
-
         newUser.getRoles().add(userRole);
-
-
         userRepository.save(newUser);
 
         return "User registered successfully.";
-
     }
 
     @PostMapping("/login")
@@ -66,32 +66,36 @@ public class AuthController {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
-            return jwtUtil.generateToken(request.getUsername());
+
+            User user = userRepository.findByUsername(request.getUsername()).orElse(null);
+            List<String> roles = user != null
+                    ? user.getRoles().stream().map(Role::getRoleName).toList()
+                    : List.of("ROLE_USER");
+
+            return jwtUtil.generateToken(request.getUsername(), roles);
         } catch (AuthenticationException e) {
             throw new RuntimeException("Invalid username or password!!");
         }
     }
 
-    @GetMapping("/test")
-    public String test(){
-        return "Hello";
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+        return userRepository.findByUsername(principal.getName())
+                .map(u -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("username", u.getUsername());
+                    map.put("email", u.getUserEmail());
+                    map.put("roles", u.getRoles().stream().map(Role::getRoleName).toList());
+                    return ResponseEntity.ok(map);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/test")
+    public String test() {
+        return "Hello";
+    }
 }
-
-
-
-//    public AuthController(JwtUtil jwtUtil){
-//        this.jwtUtil = jwtUtil;
-//    }
-//    just for testing the hardcoded username password as a demo
-//    @PostMapping("/login")
-//    public String login(@RequestBody AuthRequest authRequest){
-//        if("user".equals(authRequest.getUsername()) && "password".equals(authRequest.getPassword())){
-//            return jwtUtil.generateToken(authRequest.getUsername());
-//        }else{
-//            throw new RuntimeException("Invalid Username or Password!");
-//        }
-//    }
-
-

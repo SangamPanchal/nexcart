@@ -21,8 +21,8 @@ public class PaymentService {
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:8080/api/payment/success")
-                .setCancelUrl("http://localhost:8080/api/payment/cancel")
+                .setSuccessUrl("http://localhost:5173/?payment=success&session_id={CHECKOUT_SESSION_ID}")
+                .setCancelUrl("http://localhost:5173/?payment=cancel")
                 .addLineItem(
                         SessionCreateParams.LineItem.builder()
                                 .setQuantity(1L)
