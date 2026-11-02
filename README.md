@@ -2,6 +2,17 @@
 
 A robust, scalable, and secure RESTful backend API for an e-commerce platform. Built with Spring Boot, this application handles user authentication, complex relational data mapping, and seamless third-party payment integration using Stripe.
 
+---
+
+## 🔗 Live Links
+
+- **Frontend Deployment:** [https://nexcartfrontend.vercel.app](https://nexcartfrontend.vercel.app)
+- **Backend API Base URL:** `http://137.23.46.99/api`
+
+### Demo Credentials
+- **Username:** `testuser`
+- **Password:** `Password123!`
+
 ## Tech Stack
 
 * **Core Framework:** Java (JDK 17+), Spring Boot 3
@@ -39,4 +50,6 @@ Create a `.env` file in the root directory of the project (alongside `pom.xml`) 
 DB_URL=jdbc:postgresql://localhost:5432/nexcart_db
 DB_USERNAME=postgres
 DB_PASSWORD=your_super_secret_password
-STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key```
+
+
