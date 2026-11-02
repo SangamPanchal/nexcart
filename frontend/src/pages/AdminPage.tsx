@@ -47,7 +47,10 @@ export const AdminPage: React.FC = () => {
   // Auth test state
   const [authTestOutput, setAuthTestOutput] = useState<string | null>(null);
 
-  const { user, isAdminMode, setIsAdminMode } = useAuth();
+  const { user } = useAuth();
+const [isAdminMode, setIsAdminMode] = React.useState<boolean>(
+  user?.roles?.some(role => role === 'ROLE_ADMIN' || role === 'ADMIN') ?? false
+);
   const { showToast } = useToast();
 
   const fetchSales = async () => {

@@ -12,6 +12,9 @@ public class PaymentService {
     @Value("${stripe.api.key}")
     private String stripeApiKey;
 
+    @Value("${frontend.url:https://nexcartfrontend.vercel.app}")
+    private String frontendUrl;
+
     public String createCheckoutSession(Double totalAmount, String orderDescription) throws Exception {
 
         Stripe.apiKey = stripeApiKey;
@@ -21,8 +24,8 @@ public class PaymentService {
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:5173/?payment=success&session_id={CHECKOUT_SESSION_ID}")
-                .setCancelUrl("http://localhost:5173/?payment=cancel")
+                .setSuccessUrl(frontendUrl + "/?payment=success&session_id={CHECKOUT_SESSION_ID}")
+                .setCancelUrl(frontendUrl + "/?payment=cancel")
                 .addLineItem(
                         SessionCreateParams.LineItem.builder()
                                 .setQuantity(1L)

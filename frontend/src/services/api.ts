@@ -185,7 +185,18 @@ export const paymentAPI = {
       method: 'POST',
       headers: getAuthHeaders(false),
     });
-    return handleResponse<string>(res);
+
+    const rawResponse = await handleResponse<unknown>(res);
+
+    let url = '';
+    if (typeof rawResponse === 'string') {
+      url = rawResponse;
+    } else if (rawResponse && typeof rawResponse === 'object' && 'url' in rawResponse) {
+      url = String((rawResponse as { url: string }).url);
+    }
+
+    // Strip surrounding quotes, escaped quotes, and trailing whitespace/newlines
+    return url.replace(/^["'\s]+|["'\s]+$/g, '').trim();
   },
 };
 
